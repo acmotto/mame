@@ -8,6 +8,90 @@
         28/07/2009 added Guru-readme(TM)
         08/01/2012 Fleshed out driver.
 
+  		Note about behavior and changes I made to my local copy:
+		Done: I changed the first two bytes of the vector rom to 9e9e from 0002.
+               The new CRC is 3c04a3c8 and the sha1 is: e3cb0ba86ce51b0035916d8ce03ab294b4bdcb0b
+			   Content of the file, wb8146_058b1.mmi6309.pr1.ic99 is:
+	  $ od -x wb8146_058b1.mmi6309.pr1.ic99
+			0000000      9e9e    9f9f    9e9f    ffff    9e9e    9f9f    9e9f    ffff
+			0000020      bfaf    fff7    b7be    ffff    bbbf    bebe    bfff    ffff
+			0000040      bf3f    bfbf    bfbe    ffff    bdbf    bebe    bfbf    ffff
+			0000060      bfaf    fff7    b7bf    ffff    bbbf    bfbf    bfff    ffff
+			0000100      9e9e    9f9f    9e9f    ffff    9e9e    9f9f    9e9f    ffff
+			0000120      bfaf    fff7    bfbe    ffff    bbbf    bebe    bfff    ffff
+			0000140      bfbf    bfbf    bfbe    ffff    bdbf    bebe    bfbf    ffff
+			0000160      bfaf    fff7    bfbf    ffff    bbbf    bfbf    bfff    ffff
+			0000200      9e9e    9f9f    9e9f    ffff    9e9e    9f9f    9e9f    ffff
+			0000220      bfaf    ffff    bfbe    ffff    b9bf    bebe    bfff    ffff
+			0000240      bfbf    bfbf    bfbe    ffff    bdbf    bebe    bfbf    ffff
+			0000260      bfaf    ffff    bfbf    ffff    b9bf    bfbf    bfff    ffff
+			0000300      9e9e    9f9f    9e9f    ffff    9e9e    9f9f    9e9f    ffff
+			0000320      bfaf    ffff    bfbe    ffff    b9bf    bebe    bfff    ffff
+			0000340      bfbf    bfbf    bfbe    ffff    bdbf    bebe    bfbf    ffff
+			0000360      bfaf    ffff    bfbf    ffff    b9bf    bfbf    bfff    ffff
+   			0000400
+	    The emulation still produces an ic error message after startup. However, the emulation does not have provision
+	for the hardcopy communications port, and I think this should be added in to the emulation source file to permit
+	the self-test to pass.  But, the noted fix to the rom does not remove the following anomalies in rendering the ReGIS
+ 	interpreter errors:
+
+  			P[350,250] V[0,0] ---> does not produce a line going to the Home position of the screen
+
+			P[350,350] C[+50] ---> produces rectangular looking line vectors.  The archimedean spiral program demo looks
+   	humorous indeed and of course is very wrong!
+
+ 			The Mame Keyboard doesn't transmit characters in ONLINE mode to the rs-232 port.
+
+			The drawing of squares produces anything but a square.  The following BASIC Code was used to test it:
+
+$ cat debug.bas
+	20 print "!s(E)"
+	30 print "!P[240,150] V[380,150] V[380,210] V[240,210] V[240,150]"
+ 		Graphic Output is at https://americanconservatory.edu/GIGI/screen01.png
+	35 A$=INKEY$W
+	40 print "!s(E)"
+	50 print "!P[240,150] V[380,150]"
+	60 print "!P[240,150] V[240,210]"
+	70 print "!P[380,150] V[380,210]"
+	80 print "!P[240,270] V[380,270]"  REM Note the fudge factor necessary to cause the VK100 terminal to display this four-sided figure properly.
+  		Graphic Output is at https://americanconservatory.edu/GIGI/screen02.png
+	90 A$=INKEY$W
+	100 print "!s(E)"
+	110 print "!P[0,0] V[767,0]"
+	120 print "!P[767,0] V[767,479]"
+	130 print "!P[0,479] V[767,479]"
+	140 print "!P[0,0] V[0,479]"
+  		Graphic Output is at https://americanconservatory.edu/GIGI/screen03.png
+			Note: This drew a rectangle around the perimeter of the total screen area. Note the vertical lines go beyond the allowable screen area X range 0-767; Y range 0-479
+	150 A$=INKEY$W
+	160 print "!s(E)"
+	170 print "!P[240,150] V[242,150]"
+	180 print "!P[120,149] V[122,149]"
+   		Graphic Output is at https://americanconservatory.edu/GIGI/screen04.png
+	 		Note: This worked as intended!  SUPER Great!
+	190 A$=INKEY$W
+	200 print "!s(E)"
+	210 print "!P[,400] W(R,S1)"
+	220 print "!P[400,200] V[+200,+200]"
+	230 print "!W(E)"
+	240 print "!P[-10] V[-190,-190]"
+   		Graphic Output is at https://americanconservatory.edu/GIGI/screen05.png
+	 		Note: This shows that the V[+200,+200] command was misinterpreted by the VK100 ReGIS Interpreter.
+	250 A$=INKEY$W
+	260 print "!W(R,S0)"
+	270 print "!s(E)"
+	280 print "!P[150,10]"
+	290 print "!T(s3,d0) 'D I R E C T I O N 0'"
+   		Graphic Output is at https://americanconservatory.edu/GIGI/screen06.png
+	 		Note: This doesn't work as expected, as this and the final two screenshots show.
+	300 A$=INKEY$W
+	310 print "!T  (d45) 'D I R E C T I O N  4 5'"
+   		Graphic Output is at https://americanconservatory.edu/GIGI/screen07.png
+	320 A$=INKEY$W
+	330 print "!T  (d90) 'D I R E C T I O N  9 0'"
+   		Graphic Output is at https://americanconservatory.edu/GIGI/screen08.png
+	340 A$=INKEY$W
+
         Todo:
               * fix vector generator hardware enough to pass the startup self test
                 the tests are described on page 6-5 thru 6-8 of the tech reference
